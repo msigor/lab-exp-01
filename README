@@ -1,0 +1,42 @@
+# Análise de Repositórios Populares no GitHub
+
+## 📌 Visão Geral
+Este projeto coleta dados de repositórios populares no GitHub e analisa suas características, como idade, pull requests, releases e linguagem principal.
+
+## 🔧 Como Usar
+
+### 1. Instale as dependências
+Antes de executar o projeto, instale as dependências necessárias:
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Configure suas credenciais do GitHub
+Para acessar a API do GitHub, você precisa configurar um token de acesso pessoal. Como o arquivo `.env` está no `.gitignore`, ele não está presente no repositório e precisa ser criado manualmente.
+
+#### **Passos para criar o arquivo `.env`**:
+1. **Gere um Personal Access Token (PAT) do GitHub**:
+   - Acesse: [GitHub Developer Settings](https://github.com/settings/tokens)
+   - Gere um novo token com permissões para acessar a API do GitHub.
+   - Copie o token gerado.
+
+2. **Crie um arquivo `.env` na raiz do projeto**:
+   ```bash
+   touch .env
+   ```
+
+3. **Adicione o seguinte conteúdo ao arquivo `.env`**:
+   ```ini
+   GITHUB_TOKEN=seu_token_aqui
+   API_URL=https://api.github.com/graphql
+   ```
+
+### 3. Execute o script de coleta de dados
+Depois de configurar o `.env`, você pode executar o script principal:
+```bash
+python src/fetch_data.py
+```
+
+## 📜 Licença
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
