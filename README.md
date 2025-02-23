@@ -1,5 +1,3 @@
-Aqui está a versão atualizada do `README.md` com informações sobre os arquivos de relatório na pasta `docs/`:
-
 ---
 
 # Análise de Repositórios Populares no GitHub
