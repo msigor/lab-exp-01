@@ -1,0 +1,11 @@
+services:
+  github-data-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: github-data-processor
+    env_file:
+      - .env  # Carrega as variáveis de ambiente do arquivo .env
+    volumes:
+      - ./data:/app/data  # Monta o diretório data do host no container
+    restart: no
