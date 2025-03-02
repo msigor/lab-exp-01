@@ -1,96 +1,108 @@
 import pandas as pd
-import sys
+import matplotlib.pyplot as plt
+import seaborn as sns
 import os
+import sys
 
-def carregar_dados(caminho_arquivo="data/resultados.csv"):
+def carregar_dados(caminho_arquivo="data/resultados_processados.csv"):
     """
     Carrega os dados de um arquivo CSV para um DataFrame.
-    Valida se o arquivo existe antes de tentar carregá-lo.
     """
     if not os.path.exists(caminho_arquivo):
         print(f"Erro: O arquivo '{caminho_arquivo}' não foi encontrado.")
-        sys.exit(1)  # Encerra o programa com código de erro 1
+        sys.exit(1)
     return pd.read_csv(caminho_arquivo)
 
-def calcular_metricas(df):
+def gerar_graficos_e_csv(df):
     """
-    Calcula as métricas necessárias a partir do DataFrame.
+    Gera gráficos para análise visual dos dados coletados e salva os resultados em um CSV.
     """
-    # Cálculo das medianas para métricas numéricas
-    mediana_idade = df["Idade (anos)"].median()
-    mediana_pr_aceitas = df["Pull Requests Aceitas"].median()
-    mediana_releases = df["Total de Releases"].median()
-    mediana_atualizacao = df["Dias desde última atualização"].median()
-    mediana_taxa_fechamento = df["Taxa de Fechamento de Issues"].median()
+    # Garante que o diretório de saída existe
+    output_dir = "output"
+    data_dir = "data"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    
+    # Configuração global do estilo dos gráficos
+    sns.set_theme(style="whitegrid")
+    
+    # Criando dicionário para armazenar os valores estatísticos
+    estatisticas = {}
+    
+    # 1. Histograma da idade dos repositórios
+    plt.figure(figsize=(8, 5))
+    sns.histplot(df["Idade (anos)"], bins=20, kde=True)
+    plt.title("Distribuição da Idade dos Repositórios")
+    plt.xlabel("Idade (anos)")
+    plt.ylabel("Frequência")
+    plt.savefig(f"{output_dir}/histograma_idade.png")
+    plt.show()
+    estatisticas["Mediana da Idade dos Repositórios (anos)"] = df["Idade (anos)"].median()
+    
+    # 2. Gráfico de barras das linguagens mais usadas
+    plt.figure(figsize=(10, 6))
+    top_languages = df["Linguagem Primária"].value_counts().head(10)
+    sns.barplot(x=top_languages.values, y=top_languages.index, palette="viridis")
+    plt.title("Top 10 Linguagens Mais Utilizadas")
+    plt.xlabel("Número de Repositórios")
+    plt.ylabel("Linguagem")
+    plt.savefig(f"{output_dir}/linguagens_mais_usadas.png")
+    plt.show()
+    estatisticas["Linguagens Mais Usadas"] = top_languages.to_dict()
+    
+    # 3. Gráfico de dispersão entre idade dos repositórios e número de releases
+    plt.figure(figsize=(8, 5))
+    sns.scatterplot(x=df["Idade (anos)"], y=df["Total de Releases"], alpha=0.6)
+    plt.title("Relação entre Idade e Número de Releases")
+    plt.xlabel("Idade do Repositório (anos)")
+    plt.ylabel("Total de Releases")
+    plt.savefig(f"{output_dir}/dispersao_idade_releases.png")
+    plt.show()
+    estatisticas["Mediana do Total de Releases"] = df["Total de Releases"].median()
+    
+    # 4. Gráfico de barras comparando Pull Requests aceitas por linguagem
+    pr_por_linguagem = df.groupby("Linguagem Primária")["Pull Requests Aceitas"].median().sort_values(ascending=False).head(10)
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=pr_por_linguagem.values, y=pr_por_linguagem.index, palette="coolwarm")
+    plt.title("Média de Pull Requests Aceitas por Linguagem")
+    plt.xlabel("Mediana de Pull Requests Aceitas")
+    plt.ylabel("Linguagem")
+    plt.savefig(f"{output_dir}/pr_por_linguagem.png")
+    plt.show()
+    estatisticas["Mediana de Pull Requests Aceitas"] = df["Pull Requests Aceitas"].median()
+    
+    # 5. Gráfico de barras comparando Releases por linguagem
+    releases_por_linguagem = df.groupby("Linguagem Primária")["Total de Releases"].median().sort_values(ascending=False).head(10)
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=releases_por_linguagem.values, y=releases_por_linguagem.index, palette="magma")
+    plt.title("Média de Releases por Linguagem")
+    plt.xlabel("Mediana de Releases")
+    plt.ylabel("Linguagem")
+    plt.savefig(f"{output_dir}/releases_por_linguagem.png")
+    plt.show()
+    
+    # 6. Gráfico de barras comparando frequência de atualização por linguagem
+    atualizacao_por_linguagem = df.groupby("Linguagem Primária")["Dias desde última atualização"].median().sort_values().head(10)
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=atualizacao_por_linguagem.values, y=atualizacao_por_linguagem.index, palette="Blues")
+    plt.title("Média de Dias Desde Última Atualização por Linguagem")
+    plt.xlabel("Mediana de Dias Desde Última Atualização")
+    plt.ylabel("Linguagem")
+    plt.savefig(f"{output_dir}/atualizacao_por_linguagem.png")
+    plt.show()
+    estatisticas["Mediana dos Dias Desde Última Atualização"] = df["Dias desde última atualização"].median()
+    estatisticas["Mediana da Taxa de Fechamento de Issues"] = df["Taxa de Fechamento de Issues"].median()
+    
+    # Salvar os dados estatísticos em um CSV na pasta data
+    df_estatisticas = pd.DataFrame(list(estatisticas.items()), columns=["Métrica", "Valor"])
+    df_estatisticas.to_csv(f"data/estatisticas_repositorios.csv", index=False)
+    print(f"✅ Estatísticas detalhadas salvas em '{data_dir}/estatisticas_repositorios.csv'")
 
-    # Contagem das linguagens primárias
-    contagem_linguagens = df["Linguagem Primária"].value_counts()
-
-    # Resultados
-    resultados = {
-        "Mediana da idade dos repositórios (anos)": mediana_idade,
-        "Mediana de pull requests aceitas": mediana_pr_aceitas,
-        "Mediana do total de releases": mediana_releases,
-        "Mediana dos dias desde última atualização": mediana_atualizacao,
-        "Mediana da taxa de fechamento de issues": mediana_taxa_fechamento,
-        "Contagem de linguagens primárias": contagem_linguagens.to_dict(),
-    }
-    return resultados
-
-def exibir_resultados(resultados):
-    """
-    Exibe os resultados de forma organizada.
-    """
-    print("Análise dos dados dos repositórios populares:")
-    print("--------------------------------------------")
-    print(f"Mediana da idade dos repositórios: {resultados['Mediana da idade dos repositórios (anos)']:.2f} anos")
-    print(f"Mediana de pull requests aceitas: {resultados['Mediana de pull requests aceitas']}")
-    print(f"Mediana do total de releases: {resultados['Mediana do total de releases']}")
-    print(f"Mediana dos dias desde última atualização: {resultados['Mediana dos dias desde última atualização']} dias")
-    print(f"Mediana da taxa de fechamento de issues: {resultados['Mediana da taxa de fechamento de issues']:.2%}")
-    print("\nContagem de linguagens primárias:")
-    for linguagem, contagem in resultados["Contagem de linguagens primárias"].items():
-        print(f"{linguagem}: {contagem} repositórios")
-        
-def salvar_resultados_csv(resultados, caminho_saida):
-    """
-    Salva os resultados em um arquivo CSV.
-    """
-    # Cria um DataFrame a partir dos resultados
-    df_resultados = pd.DataFrame({
-        "Métrica": [
-            "Mediana da idade dos repositórios (anos)",
-            "Mediana de pull requests aceitas",
-            "Mediana do total de releases",
-            "Mediana dos dias desde última atualização",
-            "Mediana da taxa de fechamento de issues",
-        ],
-        "Valor": [
-            resultados["Mediana da idade dos repositórios (anos)"],
-            resultados["Mediana de pull requests aceitas"],
-            resultados["Mediana do total de releases"],
-            resultados["Mediana dos dias desde última atualização"],
-            resultados["Mediana da taxa de fechamento de issues"],
-        ]
-    })
-
-    # Salva o DataFrame em um arquivo CSV
-    df_resultados.to_csv(caminho_saida, index=False)
-    print(f"Resultados salvos em '{caminho_saida}'.")
+def main():
+    df = carregar_dados()
+    gerar_graficos_e_csv(df)
 
 if __name__ == "__main__":
-    """
-    Função principal do script.
-    """
-
-    # Carrega os dados
-    df = carregar_dados('data/resultados_processados.csv')
-
-    # Calcula as métricas
-    resultados = calcular_metricas(df)
-
-    # Exibe os resultados
-    exibir_resultados(resultados)
-    
-    # Salva os resultados em um arquivo CSV
-    salvar_resultados_csv(resultados, 'data/resultados_analisados.csv')
+    main()

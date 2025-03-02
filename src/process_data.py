@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime, timezone
+from datetime import datetime
 
 def process_csv(file_path="data/resultados.csv"):
     """
@@ -23,9 +23,9 @@ def process_csv(file_path="data/resultados.csv"):
         if not all(column in df.columns for column in required_columns):
             raise ValueError(f"O arquivo CSV deve conter as colunas: {required_columns}")
 
-        # Converte as colunas de data para datetime
-        df["Data de Criação"] = pd.to_datetime(df["Data de Criação"], utc=False)
-        df["Última Atualização"] = pd.to_datetime(df["Última Atualização"], utc=False)
+        # Converte as colunas de data para datetime e remove fuso horário
+        df["Data de Criação"] = pd.to_datetime(df["Data de Criação"]).dt.tz_localize(None)
+        df["Última Atualização"] = pd.to_datetime(df["Última Atualização"]).dt.tz_localize(None)
 
         # Calcula a idade do repositório em anos
         now = datetime.now()
