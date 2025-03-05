@@ -1,13 +1,19 @@
+# **Análise de Repositórios Populares no GitHub**
+
+## 📌 **Visão Geral**
+Este projeto coleta e analisa dados de repositórios populares no GitHub, avaliando características como:
+- **Idade do repositório**
+- **Quantidade de Pull Requests aceitas**
+- **Número total de releases**
+- **Última atualização**
+- **Linguagem principal**
+- **Taxa de fechamento de issues**
+
+Além da coleta e processamento dos dados, o projeto agora inclui **visualizações gráficas** e **um relatório CSV com estatísticas detalhadas**, permitindo uma análise mais rica dos repositórios estudados.
+
 ---
 
-# Análise de Repositórios Populares no GitHub
-
-## 📌 Visão Geral
-Este projeto coleta dados de repositórios populares no GitHub e analisa suas características, como idade, pull requests, releases e linguagem principal. Com o Docker Compose, você pode rodar o projeto de forma rápida e sem a necessidade de configurar manualmente o ambiente Python.
-
----
-
-## 🐳 Como Rodar o Projeto com Docker Compose
+## 🐳 **Como Rodar o Projeto com Docker Compose**
 
 ### **1️⃣ Pré-requisitos**
 Certifique-se de ter instalado:
@@ -47,18 +53,40 @@ Isso irá:
 
 ---
 
-### **4️⃣ Processar os Dados (Opcional)**
-Se desejar processar os dados coletados e gerar estatísticas, execute:
+### **4️⃣ Processar os Dados**
+Após a coleta, processe os dados e gere estatísticas executando:
 
 ```sh
 docker-compose run app python src/process_data.py
 ```
 
-Isso irá gerar um arquivo `data/resultados_processados.csv` com as estatísticas dos repositórios.
+Isso irá gerar:
+- **`data/resultados_processados.csv`**: Estatísticas processadas dos repositórios.
 
 ---
 
-### **5️⃣ Parar o Projeto**
+### **5️⃣ Gerar Análises e Gráficos**
+Agora, execute a análise dos dados e gere gráficos:
+
+```sh
+docker-compose run app python src/analyze_data.py
+```
+
+Isso criará:
+- **Gráficos na pasta `output/`**:
+  - `histograma_idade.png` – Distribuição da idade dos repositórios.
+  - `linguagens_mais_usadas.png` – Linguagens mais utilizadas.
+  - `dispersao_idade_releases.png` – Relação entre idade e número de releases.
+  - `pr_por_linguagem.png` – Pull Requests aceitas por linguagem.
+  - `releases_por_linguagem.png` – Total de releases por linguagem.
+  - `atualizacao_por_linguagem.png` – Frequência de atualização por linguagem.
+
+- **Arquivo CSV com todas as estatísticas na pasta `data/`**:
+  - `estatisticas_repositorios.csv` – Contém os valores estatísticos extraídos dos dados coletados.
+
+---
+
+### **6️⃣ Parar o Projeto**
 Para parar e remover os contêineres, execute:
 
 ```sh
@@ -67,48 +95,41 @@ docker-compose down
 
 ---
 
-## 🛠️ Estrutura do Projeto
-- **`src/`**: Contém os scripts Python para coleta e processamento de dados.
-  - `fetch_data.py`: Coleta dados dos repositórios no GitHub.
-  - `process_data.py`: Processa os dados coletados e gera estatísticas.
-- **`data/`**: Armazena os arquivos de dados gerados (`resultados.csv` e `resultados_processados.csv`).
-- **`docs/`**: Contém os relatórios gerados a partir da análise dos dados.
-  - `Relatório 01 - Características de repositórios populares.pdf`: Relatório em formato PDF com a análise detalhada dos dados.
-  - `Relatório 01 - Características de repositórios populares.docx`: Relatório em formato Word (DOCX) com a análise detalhada dos dados.
-- **`Dockerfile`**: Configuração do ambiente Docker.
-- **`docker-compose.yml`**: Define os serviços e configurações do Docker Compose.
-- **`.env`**: Armazena variáveis de ambiente, como o token do GitHub.
+## 🛠️ **Estrutura do Projeto**
+```
+📂 src/                        # Scripts Python do projeto
+ ├── fetch_data.py             # Coleta dados dos repositórios do GitHub
+ ├── process_data.py           # Processa e estrutura os dados coletados
+ ├── analyze_data.py           # Gera gráficos e estatísticas detalhadas
+📂 data/                        # Armazena arquivos CSV gerados
+ ├── resultados.csv            # Dados brutos coletados
+ ├── resultados_processados.csv # Dados processados
+ ├── estatisticas_repositorios.csv # Estatísticas geradas a partir dos dados
+📂 output/                      # Gráficos gerados
+ ├── histograma_idade.png      
+ ├── linguagens_mais_usadas.png
+ ├── dispersao_idade_releases.png
+ ├── pr_por_linguagem.png
+ ├── releases_por_linguagem.png
+ ├── atualizacao_por_linguagem.png
+📂 docs/                        # Relatórios criados
+ ├── Relatório 01 - Características de repositórios populares.pdf
+ ├── Relatório 01 - Características de repositórios populares.docx
+📄 Dockerfile                   # Configuração do ambiente Docker
+📄 docker-compose.yml           # Define serviços do Docker Compose
+📄 .env                         # Variáveis de ambiente do GitHub Token
+```
 
 ---
 
-## 🔍 Como Funciona o Docker Compose
-O arquivo `docker-compose.yml` define um serviço chamado `app` que:
-1. Utiliza a imagem base do Python.
-2. Instala as dependências listadas no `requirements.txt`.
-3. Monta o diretório local no contêiner para permitir acesso aos scripts e dados.
-4. Executa os scripts Python dentro do contêiner.
-
----
-
-## 📊 Resultados
+## 📊 **Resultados**
 Após a execução, você encontrará os seguintes arquivos na pasta `data/`:
 - `resultados.csv`: Dados brutos coletados dos repositórios.
 - `resultados_processados.csv`: Estatísticas processadas sobre os repositórios.
+- `estatisticas_repositorios.csv`: Resumo estatístico das métricas analisadas.
 
-Além disso, na pasta `docs/`, você encontrará os relatórios gerados:
-- **`Relatório 01 - Características de repositórios populares.pdf`**: Um relatório em formato PDF que descreve as características dos repositórios populares, incluindo gráficos, tabelas e análises detalhadas.
-- **`Relatório 01 - Características de repositórios populares.docx`**: O mesmo relatório em formato Word (DOCX), permitindo edições e personalizações adicionais.
+Na pasta `output/`, estarão os gráficos gerados.
 
----
-
-## ❓ Dúvidas ou Problemas?
-Se encontrar algum problema ou tiver dúvidas, sinta-se à vontade para abrir uma _issue_ no repositório ou entrar em contato.
-
----
-
-## 📄 Licença
-Este projeto está licenciado sob a [MIT License](LICENSE).
-
---- 
-
-Se precisar de mais detalhes ou ajustes, é só avisar! 😊
+Além disso, na pasta `docs/`, você encontrará os relatórios criados após a análise dos dados:
+- **`Relatório 01 - Características de repositórios populares.pdf`** – Relatório em formato PDF detalhando as análises dos repositórios.
+- **`Relatório 01 - Características de repositórios populares.docx`** – O mesmo relatório em formato Word, para edição e personalização.
