@@ -3,7 +3,6 @@ import time
 from config import URL, HEADERS
 
 def run_query(query, retries=3):
-    """Executa a query GraphQL na API do GitHub."""
     for attempt in range(retries):
         response = requests.post(URL, json={'query': query}, headers=HEADERS, timeout=30)
         if response.status_code == 200:
